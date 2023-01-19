@@ -11,7 +11,8 @@ public class Solution {
         coins.add((long)3);
         coins.add((long)6);
 
-        System.out.println(getWays(10, coins));
+        System.out.println("Mikey's approach: " + getWays(10, coins));
+        System.out.println("Julian's approach: " + julianGetWays(10, coins));
     }
 
     /**
@@ -81,4 +82,30 @@ public class Solution {
         return numWays[n][c.size()-1];
     }
 
+    /*
+     * A different attempt at figuring out the amount of ways to get change for a given 
+     * amount with a limitless supply of coins of a specific denomination
+     *
+     * The function is expected to return a LONG_INTEGER.
+     * The function accepts following parameters:
+     *  1. INTEGER amount
+     *  2. LONG_INTEGER_ARRAY coins
+     */
+
+     public static long julianGetWays(int amount, List<Long> coins) {
+        long[] combinations = new long[amount + 1];
+        combinations[0] = 1;
+        for (long coin : coins) {
+            // starting at 1 because 0 is already defined
+            // i represents the amount of change, and combinations[i] represents number of combinations for the amount of change
+            for (long i = 1; i < combinations.length; i += 1) {
+                // if the amount of change is more than the value of the coin that we have, then we have to refer back to figure out if there's another combination we can add
+                if (i >= coin) {
+                    combinations[(int) (i)] += combinations[(int) (i - coin)];
+                }
+            }
+        }
+        
+        return combinations[amount];
+    }
 }
