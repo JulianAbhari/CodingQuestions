@@ -1,18 +1,83 @@
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 public class Solution {
 
     public static void main(String[] args) {
-        ArrayList<Long> coins = new ArrayList<>();
-        coins.add((long)2);
-        coins.add((long)5);
-        coins.add((long)3);
-        coins.add((long)6);
+        // ArrayList<Long> coins = new ArrayList<>();
+        // coins.add((long)2);
+        // coins.add((long)5);
+        // coins.add((long)3);
+        // coins.add((long)6);
 
-        System.out.println("Mikey's approach: " + getWays(10, coins));
-        System.out.println("Julian's approach: " + julianGetWays(10, coins));
+        // System.out.println("Mikey's approach: " + getWays(10, coins));
+        // System.out.println("Julian's approach: " + julianGetWays(10, coins));
+
+        // ArrayList<Integer> objectValues = new ArrayList<>(3);
+        // objectValues.add(0, 1);
+        // objectValues.add(1, 6);
+        // objectValues.add(2, 9);
+        // System.out.println("Knapsack output for target value 12 given coins of 1, 6, and 9: " + unboundedKnapsack(12, objectValues));
+
+        metronome(16);
+    }
+
+    
+
+    public static void metronome(int length) {
+        float numTurns = (float) (length / 4.0);
+        if (numTurns % 4 == 0) {
+            System.out.printf("%.1f", numTurns);
+        } else {
+            System.out.printf("%.2f", numTurns);
+        }
+    }
+
+    /**
+     * Given an array of integers and a target sum, determine the sum nearest to but not exceeding the target that can be created. To create the sum, use any element of your array zero or more times.
+     * @param k: integer that describes target sum
+     * @param array: array of valuers we can use
+     * @return
+     */
+    public static int unboundedKnapsack(int k, List<Integer> array) {
+        int[] objectWeights = array
+            .stream()
+            .mapToInt(o -> o)
+            .toArray();
+        Arrays.sort(objectWeights);
+
+        int[][] table = new int[k + 1][objectWeights.length];
+        // Initialize rows for base case when lowest objectWeight value is a 1
+        if (objectWeights[0] == 1) {
+            for (int i = 0; i < objectWeights.length; i += 1) {
+                table[1][i] = 1;
+            }
+        }
+        // Initialize columns for base case: set each value in the first 
+        // column to be the currentCapacity - (lowest value objectWeight % currentCapacity)
+        for (int currentCapacity = 1; currentCapacity <= k; currentCapacity += 1) {
+            table[currentCapacity][0] = currentCapacity - (currentCapacity % objectWeights[0]);
+        }
+
+        // Loop through the rest of the array, where we start at the second column and the second row
+        for (int row = 2; row <= k; row += 1) {
+            for (int column = 1; column < objectWeights.length; column += 1) {
+                table[row][column] = knapsackNonBaseCase(row, column, objectWeights, table);
+            }
+        }
+        return table[k][objectWeights.length - 1];
+    }
+
+    // Take out the recursion parts and just use the table
+    public static int knapsackNonBaseCase(int target, int currentObjectWeightIndex, int[] objectWeights, int[][] table) {
+        if (objectWeights[currentObjectWeightIndex] > target) {
+            return table[target][currentObjectWeightIndex - 1];
+        }
+        int estimateFromPreviousObjectWeight = table[target][currentObjectWeightIndex - 1];
+        int estimateFromPreviousAmount = table[target - objectWeights[currentObjectWeightIndex]][currentObjectWeightIndex] + objectWeights[currentObjectWeightIndex];
+        return Math.max(estimateFromPreviousObjectWeight, estimateFromPreviousAmount);
     }
 
     /**
@@ -103,7 +168,9 @@ public class Solution {
                 if (i >= coin) {
                     combinations[(int) (i)] += combinations[(int) (i - coin)];
                 }
+                System.out.println(Arrays.toString(combinations));
             }
+            System.out.println("\n");
         }
         
         return combinations[amount];
